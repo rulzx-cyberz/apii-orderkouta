@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fahri API Documentation</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        header {
+        position: fixed; /* Header tetap di atas */
+        top: 0;
+        width: 100%;
+        z-index: 100; /* Pastikan berada di atas elemen lain */
+        backdrop-filter: blur(10px); /* Efek blur */
+        background-color: rgba(255, 255, 255, 0.7); /* Transparansi putih */
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Shadow lembut */
+        border-bottom: 1px solid rgba(200, 200, 200, 0.5); /* Garis bawah tipis */
+        transition: background-color 0.3s ease, backdrop-filter 0.3s ease; /* Animasi */
+    }
+
+    header .container {
+        color: #1E40AF; /* Warna teks biru tua untuk kontras */
+    }
+
+    header .container h1 {
+        color: #1E40AF; /* Warna biru tua */
+    }
+
+    header .container p {
+        color: #4B5563; /* Warna teks abu-abu */
+    }
+           main {
+        margin-top: 100px; /* Sesuaikan dengan tinggi header */
+    }
+        @keyframes moveLine {
+            0% { left: -100%; }
+            50% { left: 50%; }
+            100% { left: 100%; }
+        }
+
+        .animated-line {
+            position: fixed;
+            top: 0;
+            height: 2px;
+            background-color: #1E40AF;
+            animation: moveLine 4s infinite;
+            z-index: 1000;
+        }
+
+        .endpoint-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .endpoint-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .gradient-text {
+            background: linear-gradient(45deg, #3B82F6, #1E40AF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Fixed sidebar styling */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -256px; /* Start hidden (-width of sidebar) */
+            height: 100vh;
+            width: 256px;
+            transition: left 0.3s ease;
+            z-index: 50;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        /* Main content wrapper */
+        .content-wrapper {
+            transition: margin-left 0.3s ease;
+            margin-left: 0;
+        }
+
+        .content-wrapper.sidebar-active {
+            margin-left: 256px;
+        }
+
+        /* Mobile overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper.sidebar-active {
+                margin-left: 0;
+            }
+        }
+
+        .endpoint-details {
+            display: none;
+        }
+
+        .endpoint-details.active {
+            display: block;
+        }
+        footer {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    margin-top: auto;
+}
+.social-media a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: inherit;
+}
+    footer {
+        background: rgba(255, 255, 255, 0.8); /* Transparan dengan efek blur */
+        backdrop-filter: blur(10px); /* Blur efek */
+        border-radius: 20px; /* Membuat ujung melengkung */
+        color: #1E40AF; /* Warna teks biru */
+        text-align: center;
+        padding: 10px 20px;
+        margin-top: 20px;
+        max-width: 600px; /* Lebar kecil */
+        margin-left: auto;
+        margin-right: auto;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Shadow lembut */
+        font-family: 'Poppins', sans-serif; /* Font keren */
+        font-size: 14px; /* Ukuran font kecil */
+    }
+
+    footer .social-media a {
+        margin: 0 8px;
+        text-decoration: none;
+        color: #1E40AF; /* Warna ikon biru */
+        font-size: 16px;
+        transition: color 0.3s ease;
+    }
+
+    footer .social-media a:hover {
+        color: #3B82F6; /* Warna hover lebih cerah */
+    }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar bg-blue-900 text-white">
+        <div class="p-4">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-xl font-bold">API Navigation</h2>
+                <button id="closeSidebar" class="text-white text-xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <nav class="space-y-4">
+                <div class="space-y-2">
+                    <h3 class="text-blue-300 text-sm uppercase">Order Kuota API</h3>
+                    <a href="#createPayment" class="block px-4 py-2 hover:bg-blue-800 rounded">Create Payment</a>
+                    <a href="#checkStatus" class="block px-4 py-2 hover:bg-blue-800 rounded">Check Status</a>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-blue-300 text-sm uppercase">Download API</h3>
+                    <a href="#tiktok" class="block px-4 py-2 hover:bg-blue-800 rounded">TikTok Download</a>
+                    <a href="#spotify" class="block px-4 py-2 hover:bg-blue-800 rounded">Spotify Search</a>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <!-- Animated Line -->
+        <div class="animated-line w-full"></div>
+
+        <header>
+            <nav class="container mx-auto px-4 py-6">
+                <div class="flex justify-between items-center">
+                    <button id="openSidebar" class="text-2xl">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-4xl font-bold tracking-tight">FAHRI API</h1>
+                        <p class="text-blue-100 mt-1">Professional API Services</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button class="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors">
+                            Documentation
+                        </button>
+                        <span class="text-white text-2xl hover:animate-pulse"></span>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        
+
+        <!-- Rest of the content remains the same... -->
+        
+        <!-- Main Content -->
+       <!-- Main Content (lanjutan setelah header) -->
+       <main class="container mx-auto px-4 py-8">
+        <!-- Intro Section -->
+        <section class="bg-white rounded-xl shadow-lg p-8 mb-8 border border-blue-100 animate__animated animate__fadeIn">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold gradient-text mb-4">Welcome to Fahri API</h2>
+                <p class="text-gray-600 text-lg">Professional API Services for Your Development Needs</p>
+                <div class="mt-4 flex flex-wrap justify-center gap-2">
+                    <span class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium">Fast</span>
+                    <span class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium">Reliable</span>
+                    <span class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium">Secure</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Endpoints -->
+        <div class="space-y-8">
+            <!-- Order Kuota API Section -->
+            <section id="orderKuota" class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-2xl font-bold text-blue-800">Order Kuota API</h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div id="createPayment" class="endpoint-card bg-gray-50 rounded-lg p-4">
+                        <div class="cursor-pointer" onclick="toggleEndpoint('createPayment')">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="inline-block px-2 py-1 text-sm font-medium bg-green-100 text-green-800 rounded">GET</span>
+                                    <span class="ml-3 text-gray-700">Create Payment</span>
+                                </div>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="endpoint-details mt-4 p-4 bg-white rounded-lg">
+                            <h4 class="font-semibold mb-2">Endpoint URL:</h4>
+                            <code class="block bg-gray-100 p-2 rounded">
+                                https://simpelsz.idhostrull.me/api/orkut/createpayment?apikey=Fahriofficial&amount=&codeqr=
+                            </code>
+                            <button onclick="copyToClipboard(this)" class="mt-2 text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-copy mr-1"></i> Copy URL
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="checkStatus" class="endpoint-card bg-gray-50 rounded-lg p-4">
+                        <div class="cursor-pointer" onclick="toggleEndpoint('checkStatus')">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="inline-block px-2 py-1 text-sm font-medium bg-green-100 text-green-800 rounded">GET</span>
+                                    <span class="ml-3 text-gray-700">Check Status</span>
+                                </div>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="endpoint-details mt-4 p-4 bg-white rounded-lg">
+                            <h4 class="font-semibold mb-2">Endpoint URL:</h4>
+                            <code class="block bg-gray-100 p-2 rounded">
+                                https://simpelsz.idhostrull.me/api/orkut/cekstatus?apikey=FahriofficiaL&merchant=&keyorkut=
+                            </code>
+                            <button onclick="copyToClipboard(this)" class="mt-2 text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-copy mr-1"></i> Copy URL
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Download API Section -->
+            <section id="downloadApi" class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-2xl font-bold text-blue-800">Download API</h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div id="tiktok" class="endpoint-card bg-gray-50 rounded-lg p-4">
+                        <div class="cursor-pointer" onclick="toggleEndpoint('tiktok')">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="inline-block px-2 py-1 text-sm font-medium bg-green-100 text-green-800 rounded">GET</span>
+                                    <span class="ml-3 text-gray-700">TikTok Download</span>
+                                </div>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="endpoint-details mt-4 p-4 bg-white rounded-lg">
+                            <h4 class="font-semibold mb-2">Endpoint URL:</h4>
+                            <code class="block bg-gray-100 p-2 rounded">
+                                https://simpelsz.idhostrull.me/api/downloader/tiktok?url=https://vt.tiktok.com/ZSjnf5voB/
+                            </code>
+                            <button onclick="copyToClipboard(this)" class="mt-2 text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-copy mr-1"></i> Copy URL
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="spotify" class="endpoint-card bg-gray-50 rounded-lg p-4">
+                        <div class="cursor-pointer" onclick="toggleEndpoint('spotify')">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="inline-block px-2 py-1 text-sm font-medium bg-green-100 text-green-800 rounded">GET</span>
+                                    <span class="ml-3 text-gray-700">Spotify Search</span>
+                                </div>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="endpoint-details mt-4 p-4 bg-white rounded-lg">
+                            <h4 class="font-semibold mb-2">Endpoint URL:</h4>
+                            <code class="block bg-gray-100 p-2 rounded">
+                                https://simpelsz.idhostrull.me/api/downloader/spotifys?judul=hujan
+                            </code>
+                            <button onclick="copyToClipboard(this)" class="mt-2 text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-copy mr-1"></i> Copy URL
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 Nama Anda. All Rights Reserved.</p>
+        <div class="social-media">
+            <a href="https://facebook.com/username" target="_blank">
+                <i class="fab fa-facebook"></i>
+            </a>
+            <a href="https://twitter.com/username" target="_blank">
+                <i class="fab fa-twitter"></i>
+            </a>
+            <a href="https://instagram.com/username" target="_blank">
+                <i class="fab fa-instagram"></i>
+            </a>
+        </div>
+    </footer>
+    
+    <!-- Additional JavaScript for endpoint toggling and copying -->
+    <script>
+        function toggleEndpoint(id) {
+            const details = document.querySelector(`#${id} .endpoint-details`);
+            const icon = document.querySelector(`#${id} .fa-chevron-down`);
+            details.classList.toggle('active');
+            icon.style.transform = details.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0)';
+        }
+
+        function copyToClipboard(button) {
+            const codeElement = button.previousElementSibling;
+            const textArea = document.createElement('textarea');
+            textArea.value = codeElement.textContent.trim();
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
+            setTimeout(() => {
+                button.innerHTML = originalText;
+            }, 2000);
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.querySelector('.sidebar');
+    const contentWrapper = document.querySelector('.content-wrapper');
+    const overlay = document.querySelector('.sidebar-overlay');
+    const openButton = document.getElementById('openSidebar');
+    const closeButton = document.getElementById('closeSidebar');
+
+    // Function to open sidebar
+    function openSidebar() {
+        sidebar.classList.add('active');
+        contentWrapper.classList.add('sidebar-active');
+        overlay.classList.add('active');
+    }
+
+    // Function to close sidebar
+    function closeSidebar() {
+        sidebar.classList.remove('active');
+        contentWrapper.classList.remove('sidebar-active');
+        overlay.classList.remove('active');
+    }
+
+    // Function to scroll to section with offset for header
+    function scrollToSection(e) {
+        e.preventDefault();
+        const targetId = e.target.getAttribute('href').slice(1);
+        const targetElement = document.getElementById(targetId);
+        
+        if (targetElement) {
+            const headerOffset = 100; // Adjust this value based on your header height
+            const elementPosition = targetElement.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+            
+            closeSidebar();
+        }
+    }
+
+    // Add click event listeners to all sidebar navigation links
+    const sidebarLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', scrollToSection);
+    });
+
+    // Event listeners for sidebar toggle
+    openButton.addEventListener('click', openSidebar);
+    closeButton.addEventListener('click', closeSidebar);
+    overlay.addEventListener('click', closeSidebar);
+});
+    </script>

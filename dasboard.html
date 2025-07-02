@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        }
+
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #f1f5f9;
+            --text-color: #1e293b;
+            --sidebar-width: 280px;
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            background-color: #f8fafc;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, 
+                rgba(255, 105, 180, 0.1), /* Pink */
+                rgba(173, 216, 230, 0.1), /* Light Blue */
+                rgba(144, 238, 144, 0.1)); /* Light Green */
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            z-index: -1;
+            backdrop-filter: blur(10px); /* Efek glassmorphism */
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: rgba(255, 255, 255, 0.8); /* Transparan */
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: transform var(--transition-speed) ease;
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+            backdrop-filter: blur(10px); /* Efek glassmorphism */
+        }
+
+        .logo {
+            font-size: 24px;
+            color: var(--primary-color);
+            text-align: left;
+            padding: 16px 0;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            padding: 14px 16px;
+            margin: 4px 0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-item i {
+            margin-right: 12px;
+            width: 20px;
+            font-size: 18px;
+        }
+
+        .nav-item:hover {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            margin-left: var(--sidebar-width); /* Default margin untuk desktop */
+            transition: margin var(--transition-speed) ease;
+            background: rgba(255, 255, 255, 0.8); /* Transparan */
+            backdrop-filter: blur(10px); /* Efek glassmorphism */
+            border-radius: 16px;
+            margin-top: 24px;
+            margin-right: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.9); /* Transparan */
+            padding: 20px 24px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .system-info {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            background: var(--secondary-color);
+            border-radius: 12px;
+            font-size: 15px;
+            transition: transform var(--transition-speed);
+        }
+
+        .info-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .battery-indicator {
+            position: relative;
+            width: 44px;
+            height: 22px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            border: 2px solid #64748b;
+            overflow: hidden;
+        }
+
+        .battery-level {
+            height: 100%;
+            background: #10b981;
+            border-radius: 2px;
+            transition: width 0.5s ease, background-color 0.5s ease;
+        }
+
+        .battery-tip {
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 10px;
+            background: #64748b;
+            border-radius: 0 2px 2px 0;
+        }
+
+        .system-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .system-card {
+            background: rgba(255, 255, 255, 0.9); /* Transparan */
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: transform var(--transition-speed);
+        }
+
+        .system-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .system-card h3 {
+            margin-bottom: 20px;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+        }
+
+        .system-details {
+            display: grid;
+            gap: 12px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px;
+            background: var(--secondary-color);
+            border-radius: 12px;
+            font-size: 15px;
+            transition: transform var(--transition-speed);
+        }
+
+        .detail-item:hover {
+            transform: translateX(4px);
+        }
+
+        .whatsapp-btn {
+            position: fixed;
+            right: 30px;
+            bottom: 30px;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: #25d366;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+            transition: all var(--transition-speed) ease;
+            z-index: 1000;
+        }
+
+        .whatsapp-btn:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
+        }
+
+        .whatsapp-tooltip {
+            position: fixed;
+            right: 105px;
+            bottom: 45px;
+            background: white;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transition: all var(--transition-speed) ease;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%); /* Sidebar default tertutup di mobile */
+            }
+
+            .sidebar.active {
+                transform: translateX(0); /* Sidebar terbuka saat toggle diklik */
+            }
+
+            .main-content {
+                margin-left: 0; /* Margin dihapus saat sidebar tertutup di mobile */
+            }
+
+            .system-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        .menu-toggle {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .menu-toggle:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .notification-badge {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-badge::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+
+        .user-profile:hover {
+            background: var(--secondary-color);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--secondary-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        .github-link {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background-color: #24292e;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .github-link:hover {
+            background-color: #0366d6;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .github-link i {
+            font-size: 20px;
+        }
+        .loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.5); /* Warna latar belakang semi-transparan */
+  backdrop-filter: blur(10px); /* Efek blur pada latar belakang */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+    </style>
+</head>
+<body>
+    <a href="https://wa.me/6287786336665" class="whatsapp-btn" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    <div class="whatsapp-tooltip">Hubungi kami via WhatsApp</div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </div>
+            <a href="#" class="nav-item active">
+                <i class="fas fa-home"></i> Beranda
+            </a>
+            <a href="dasboard" class="nav-item">
+                <i class="fas fa-laptop"></i> Dokumentasi API
+            </a>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                    <div class="system-info">
+                        <div class="info-item">
+                            <i class="fas fa-network-wired"></i>
+                            <span id="ip-address">Loading IP...</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-battery-full"></i>
+                            <div class="battery-indicator">
+                                <div class="battery-level" id="battery-level"></div>
+                                <div class="battery-tip"></div>
+                            </div>
+                            <span id="battery-percentage">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 20px">
+                    <div class="notification-badge">
+                        <i class="fas fa-bell" style="font-size: 20px;"></i>
+                    </div>
+                    <div class="user-profile">
+                        <i class="fas fa-user-circle" style="font-size: 24px;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="system-cards">
+                <div class="system-card">
+                    <h3>
+                        <i class="fas fa-network-wired"></i> Informasi Jaringan
+                    </h3>
+                    <div class="system-details">
+                        <div class="detail-item">
+                            <span>IP Address</span>
+                            <span id="detailed-ip">Loading...</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Status</span>
+                            <span id="connection-status">Mengecek...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="system-card">
+                    <h3>
+                        <i class="fas fa-battery-full"></i> Informasi Baterai
+                    </h3>
+                    <div class="system-details">
+                        <div class="detail-item">
+                            <span>Level Baterai</span>
+                            <span id="detailed-battery">Loading...</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Status Charging</span>
+                            <span id="charging-status">Mengecek...</span>
+                        </div>
+                    </div>
+                </div>
+                 <!-- Tombol GitHub -->
+    <a href="https://github.com/username" class="github-link" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-github"></i> View on GitHub
+    </a>
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+      </div>      
+            </div>
+        </div>
+    </div>
+    <script>
+window.addEventListener('load', () => {
+  const loadingOverlay = document.querySelector('.loading-overlay');
+  setTimeout(() => {
+    loadingOverlay.style.display = 'none';
+  }, 3000); // Menghilangkan overlay setelah 3 detik
+});
+        // Toggle Sidebar
+        const menuToggle = document.querySelector('.menu-toggle');
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+
+        
+        menuToggle.addEventListener('click', toggleSidebar);
+        function toggleSidebar() {
+    sidebar.classList.toggle('active');
+
+    // Responsif: sesuaikan margin main-content
+    if (window.innerWidth <= 768) {
+        mainContent.style.marginLeft = sidebar.classList.contains('active') ? 'var(--sidebar-width)' : '0';
+    } else {
+        mainContent.style.marginLeft = sidebar.classList.contains('active') ? 'var(--sidebar-width)' : 'var(--sidebar-width)';
+    }
+}
+
+// Respon saat layar di-resize
+
+
+        // IP Address Detection
+        async function detectIPAddress() {
+            const ipElement = document.getElementById("ip-address");
+            const detailedIpElement = document.getElementById("detailed-ip");
+            const connectionStatusElement = document.getElementById("connection-status");
+
+            try {
+                const response = await fetch("https://api.ipify.org?format=json");
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.json();
+                const ip = data.ip;
+
+                ipElement.textContent = ip;
+                detailedIpElement.textContent = ip;
+                connectionStatusElement.textContent = "Terhubung";
+                connectionStatusElement.style.color = "#10b981";
+            } catch (error) {
+                console.error('Error fetching IP:', error);
+                ipElement.textContent = "IP tidak tersedia";
+                detailedIpElement.textContent = "Tidak tersedia";
+                connectionStatusElement.textContent = "Tidak terhubung";
+                connectionStatusElement.style.color = "#ef4444";
+            }
+        }
+
+        // Battery Detection
+        async function detectBattery() {
+            const batteryPercentage = document.getElementById("battery-percentage");
+            const detailedBattery = document.getElementById("detailed-battery");
+            const chargingStatus = document.getElementById("charging-status");
+            const batteryLevel = document.getElementById("battery-level");
+
+            try {
+                let battery;
+                if ("getBattery" in navigator) {
+                    battery = await navigator.getBattery();
+                } else if ("battery" in navigator) {
+                    battery = await navigator.battery;
+                } else {
+                    throw new Error('Battery API not supported');
+                }
+
+                function updateBatteryInfo() {
+                    const level = battery.level * 100;
+                    const percentage = Math.round(level);
+
+                    batteryPercentage.textContent = `${percentage}%`;
+                    detailedBattery.textContent = `${percentage}%`;
+                    batteryLevel.style.width = `${level}%`;
+
+                    chargingStatus.innerHTML = battery.charging
+                        ? '<i class="fas fa-bolt"></i> Mengisi daya'
+                        : '<i class="fas fa-plug"></i> Tidak mengisi daya';
+
+                    if (level <= 20) {
+                        batteryLevel.style.background = '#ef4444';
+                        batteryLevel.style.animation = 'pulse 2s infinite';
+                    } else if (level <= 50) {
+                        batteryLevel.style.background = '#f59e0b';
+                        batteryLevel.style.animation = 'none';
+                    } else {
+                        batteryLevel.style.background = '#10b981';
+                        batteryLevel.style.animation = 'none';
+                    }
+                }
+
+                updateBatteryInfo();
+                battery.addEventListener('levelchange', updateBatteryInfo);
+                battery.addEventListener('chargingchange', updateBatteryInfo);
+
+            } catch (error) {
+                console.error('Error detecting battery:', error);
+                batteryPercentage.textContent = "Tidak tersedia";
+                detailedBattery.textContent = "Tidak tersedia";
+                chargingStatus.textContent = "Tidak tersedia";
+                if (batteryLevel) batteryLevel.style.display = 'none';
+            }
+        }
+
+        // WhatsApp button hover animation
+        const whatsappBtn = document.querySelector('.whatsapp-btn');
+        const tooltip = document.querySelector('.whatsapp-tooltip');
+
+        if (whatsappBtn && tooltip) {
+            whatsappBtn.addEventListener('mouseenter', () => {
+                tooltip.style.opacity = '1';
+                tooltip.style.right = '90px';
+            });
+
+            whatsappBtn.addEventListener('mouseleave', () => {
+                tooltip.style.opacity = '0';
+                tooltip.style.right = '95px';
+            });
+        }
+
+        // Initialize all features
+        document.addEventListener('DOMContentLoaded', () => {
+            detectIPAddress();
+            detectBattery();
+        });
+
+        // Add window resize handler for responsive design
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+        sidebar.classList.remove('active');
+        mainContent.style.marginLeft = 'var(--sidebar-width)';
+    } else {
+        sidebar.classList.remove('active');
+        mainContent.style.marginLeft = '0';
+    }
+});
+    </script>
+</body>
+</html>
