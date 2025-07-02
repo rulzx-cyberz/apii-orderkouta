@@ -96,8 +96,8 @@ app.get('/api/orkut/createpayment', validateApiKey, async (req, res) => {
         const qrData = await createQRIS(amount, codeqr);
 
         // Notifikasi Telegram (async, non-blocking)
-        const telegramBotToken = '7917464738:AAGdIVnbDSmPM5uxb4GNbv4f5f2s1rn8_cY';
-        const chatId = '7019487697';
+        const telegramBotToken = '8046327633:AAGCl1xUm32Dupb-JhrkFSPrmjFxrUrT7gQ';
+        const chatId = '7925021934';
         const message = `
 🚨 *Notifikasi Pembayaran Baru* 🚨
 
